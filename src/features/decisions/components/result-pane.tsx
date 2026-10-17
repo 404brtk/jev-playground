@@ -7,12 +7,14 @@ export function ResultPane({ result }: { result: Result }) {
   return (
     <section
       aria-label="Decision output"
-      className="result-pane"
+      className="min-h-160 min-w-0 bg-card p-6 max-[960px]:min-h-120 max-sm:px-4 max-sm:py-5"
       aria-busy={result.status === "running"}
     >
       <Tabs defaultValue="preview" className="h-full gap-0">
-        <div className="pane-toolbar">
-          <h2>Output</h2>
+        <div className="mb-6 flex min-h-9 items-center justify-between gap-4">
+          <h2 className="text-[0.8125rem] leading-[1.3] font-medium text-muted-foreground">
+            Output
+          </h2>
           <TabsList aria-label="Output format">
             <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="json">JSON</TabsTrigger>
@@ -25,32 +27,38 @@ export function ResultPane({ result }: { result: Result }) {
               ? "Decision complete"
               : ""}
         </p>
-        {result.status === "idle" && (
-          <div className="result-empty">Run a decision to see the result.</div>
-        )}
-        {result.status === "running" && (
-          <div className="result-empty">Running…</div>
-        )}
-        {result.status === "error" && (
-          <div className="result-empty">
-            <p role="alert" className="max-w-md text-sm text-destructive">
-              {result.message}
-            </p>
+        {result.status !== "success" && (
+          <div className="flex min-h-105 flex-1 items-center justify-center p-8 text-center text-[0.8125rem] text-muted-foreground">
+            {result.status === "error" ? (
+              <p role="alert" className="max-w-md text-sm text-destructive">
+                {result.message}
+              </p>
+            ) : result.status === "running" ? (
+              "Running…"
+            ) : (
+              "Run a decision to see the result."
+            )}
           </div>
         )}
         {result.status === "success" && (
           <>
-            <TabsContent value="preview" className="result-content">
+            <TabsContent
+              value="preview"
+              className="mx-auto w-full max-w-170 px-4 py-8 max-sm:px-0 max-sm:py-5"
+            >
               <AnswerPreview
                 answer={Object.values(result.run.response.answers)[0]}
                 question={Object.values(result.request.questions)[0]}
                 state={result.request.state}
               />
             </TabsContent>
-            <TabsContent value="json" className="result-content">
+            <TabsContent
+              value="json"
+              className="mx-auto w-full max-w-170 px-4 py-8 max-sm:px-0 max-sm:py-5"
+            >
               <JsonOutput value={result.run.rawResponse} />
             </TabsContent>
-            <div className="result-metrics">
+            <div className="mt-auto flex flex-wrap gap-x-5 gap-y-2 pt-6 text-xs text-muted-foreground tabular-nums">
               <span>{result.run.durationMs.toLocaleString("en-US")} ms</span>
               <span>
                 {(

@@ -1,11 +1,11 @@
 "use client";
 
-import { Option, Schema } from "effect";
 import { useEffect, useRef, useState } from "react";
 import { fromRequest, toRequest, type Draft } from "./draft";
 import { freshDraft, PRESETS } from "./presets";
 import { parseRequest, imageUrls, type DecisionRequest } from "./request";
-import { ApiError, DecisionRun } from "./response";
+import type { DecisionRun } from "./response";
+import { requestDecision, decisionError } from "./client";
 
 export type Result =
   | { status: "idle" | "running" }
@@ -120,42 +120,18 @@ export function usePlayground() {
       result: { status: "running" },
     });
     try {
-      const response = await fetch("/api/decisions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(request),
-        signal: AbortSignal.any([
-          activeController.signal,
-          AbortSignal.timeout(30_000),
-        ]),
-      });
-      const body: unknown = await response.json();
-      if (!response.ok) {
-        const error = Schema.decodeUnknownOption(ApiError)(body);
-        throw new Error(
-          Option.isSome(error)
-            ? error.value.error.message
-            : `Request failed (HTTP ${response.status}). Try again.`,
-        );
-      }
-      const result = Schema.decodeUnknownOption(DecisionRun)(body);
-      if (Option.isNone(result))
-        throw new Error("The server returned an invalid response. Try again.");
+      const result = await requestDecision(
+        request,
+        AbortSignal.any([activeController.signal, AbortSignal.timeout(30_000)]),
+      );
       if (!activeController.signal.aborted)
-        update({ result: { status: "success", run: result.value, request } });
+        update({ result: { status: "success", run: result, request } });
     } catch (error) {
       if (!activeController.signal.aborted)
         update({
           result: {
             status: "error",
-            message:
-              error instanceof Error && error.name === "TimeoutError"
-                ? "The request timed out. Try again."
-                : error instanceof SyntaxError
-                  ? "The server returned unreadable JSON. Try again."
-                  : error instanceof Error
-                    ? error.message
-                    : "Could not connect. Check your connection and try again.",
+            message: decisionError(error),
           },
         });
     } finally {

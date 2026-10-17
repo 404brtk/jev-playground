@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import type { Draft } from "../draft";
 
 export function CriteriaEditor({
@@ -14,22 +15,22 @@ export function CriteriaEditor({
   if (draft.type === "noul")
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label className="field-label">
+        <label className="block text-[0.8125rem] leading-normal font-medium">
           True when
           <Textarea
             value={draft.trueWhen}
             onChange={(event) => onChange({ trueWhen: event.target.value })}
             maxLength={2000}
-            className="decision-textarea min-h-28"
+            className="mt-2 min-h-28"
           />
         </label>
-        <label className="field-label">
+        <label className="block text-[0.8125rem] leading-normal font-medium">
           False when
           <Textarea
             value={draft.falseWhen}
             onChange={(event) => onChange({ falseWhen: event.target.value })}
             maxLength={2000}
-            className="decision-textarea min-h-28"
+            className="mt-2 min-h-28"
           />
         </label>
       </div>
@@ -37,20 +38,25 @@ export function CriteriaEditor({
   if (draft.type === "choice")
     return (
       <fieldset className="space-y-3">
-        <legend className="field-label mb-3">Options</legend>
+        <legend className="mb-3 block text-[0.8125rem] leading-normal font-medium">
+          Options
+        </legend>
         <div
-          className="option-columns text-xs text-muted-foreground"
+          className="grid grid-cols-[72px_minmax(0,1fr)_32px] gap-2 text-xs text-muted-foreground sm:grid-cols-[96px_minmax(0,1fr)_32px]"
           aria-hidden="true"
         >
           <span>Value</span>
           <span>Choose when</span>
         </div>
         {draft.choices.map((option, index) => (
-          <div key={option.id} className="option-columns items-start">
+          <div
+            key={option.id}
+            className="grid grid-cols-[72px_minmax(0,1fr)_32px] items-start gap-2 sm:grid-cols-[96px_minmax(0,1fr)_32px]"
+          >
             <label className="min-w-0">
               <span className="sr-only">Option {index + 1} value</span>
-              <input
-                className="decision-input font-mono"
+              <Input
+                className="font-mono"
                 value={option.value}
                 required
                 maxLength={64}
@@ -76,7 +82,7 @@ export function CriteriaEditor({
             <label className="min-w-0">
               <span className="sr-only">Option {index + 1} description</span>
               <Textarea
-                className="decision-textarea min-h-16"
+                className="min-h-16"
                 value={option.description ?? ""}
                 maxLength={2000}
                 onChange={(event) =>
@@ -129,7 +135,9 @@ export function CriteriaEditor({
   if (draft.type === "score")
     return (
       <fieldset className="space-y-3">
-        <legend className="field-label mb-3">Levels · lowest to highest</legend>
+        <legend className="mb-3 block text-[0.8125rem] leading-normal font-medium">
+          Levels · lowest to highest
+        </legend>
         {draft.levels.map((level, index) => (
           <div key={level.id} className="flex items-start gap-3">
             <span
@@ -144,7 +152,7 @@ export function CriteriaEditor({
                 value={level.description}
                 required
                 maxLength={2000}
-                className="decision-textarea min-h-16"
+                className="min-h-16"
                 onChange={(event) =>
                   onChange({
                     levels: draft.levels.map((item) =>

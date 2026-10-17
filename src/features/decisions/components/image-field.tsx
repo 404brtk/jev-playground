@@ -81,7 +81,10 @@ export function ImageField({
 
   return (
     <div className="space-y-3">
-      <label htmlFor={id} className="field-label">
+      <label
+        htmlFor={id}
+        className="block text-[0.8125rem] leading-normal font-medium"
+      >
         Image
       </label>
       <input

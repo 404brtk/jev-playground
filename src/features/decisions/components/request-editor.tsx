@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { RunButton } from "@/components/run-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { PRESETS } from "../presets";
@@ -23,7 +24,10 @@ export function RequestEditor({
   }, [session.error]);
 
   return (
-    <section aria-label="Decision input" className="input-pane">
+    <section
+      aria-label="Decision input"
+      className="min-w-0 border-e border-border p-6 max-[960px]:border-e-0 max-[960px]:border-b max-sm:px-4 max-sm:py-5"
+    >
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -42,8 +46,10 @@ export function RequestEditor({
             playground.changeMode(value === "json" ? "json" : "form")
           }
         >
-          <div className="pane-toolbar">
-            <h2>Input</h2>
+          <div className="mb-6 flex min-h-9 items-center justify-between gap-4">
+            <h2 className="text-[0.8125rem] leading-[1.3] font-medium text-muted-foreground">
+              Input
+            </h2>
             <TabsList aria-label="Input format">
               <TabsTrigger value="form" disabled={pending || readingImage}>
                 Form
@@ -54,8 +60,8 @@ export function RequestEditor({
             </TabsList>
           </div>
           <TabsContent value="form">
-            <fieldset disabled={pending} className="editor-fields">
-              <label className="field-label">
+            <fieldset disabled={pending} className="grid gap-6">
+              <label className="block text-[0.8125rem] leading-normal font-medium">
                 State
                 {draft.stateFormat === "json" && (
                   <span className="font-normal text-muted-foreground">
@@ -69,7 +75,7 @@ export function RequestEditor({
                   required
                   maxLength={draft.stateFormat === "text" ? 12000 : undefined}
                   onChange={(event) => editDraft({ state: event.target.value })}
-                  className="decision-textarea min-h-36"
+                  className="mt-2 min-h-36"
                 />
               </label>
               {(PRESETS[playground.active].image ||
@@ -81,7 +87,7 @@ export function RequestEditor({
                   onReadingChange={setReadingImage}
                 />
               )}
-              <label className="field-label">
+              <label className="block text-[0.8125rem] leading-normal font-medium">
                 Question
                 <Textarea
                   name="question"
@@ -91,7 +97,7 @@ export function RequestEditor({
                   onChange={(event) =>
                     editDraft({ instructions: event.target.value })
                   }
-                  className="decision-textarea min-h-20"
+                  className="mt-2 min-h-20"
                 />
               </label>
               <CriteriaEditor
@@ -113,7 +119,7 @@ export function RequestEditor({
               aria-invalid={Boolean(session.error)}
               aria-describedby={session.error ? "request-error" : undefined}
               onChange={(event) => playground.editJson(event.target.value)}
-              className="decision-textarea min-h-140 font-mono"
+              className="min-h-140 font-mono"
             />
           </TabsContent>
         </Tabs>
@@ -142,13 +148,9 @@ export function RequestEditor({
               Cancel
             </Button>
           ) : (
-            <Button
-              type="submit"
-              disabled={!configured || readingImage}
-              className="run-button"
-            >
+            <RunButton type="submit" disabled={!configured || readingImage}>
               Run decision
-            </Button>
+            </RunButton>
           )}
         </div>
         {!configured && (
